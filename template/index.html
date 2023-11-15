@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1><b>Todo</b></h1>
+    <form onsubmit="adding(event)">
+    <input type="text" name="Todo_data">
+    <input type="submit" value="add">
+</form>
+
+<ul id="list"></ul>
+
+<script>
+    let adding = (event)=>{
+        event.preventDefault();
+        let formdata = new FormData(event.target)
+        let todo_data = formdata.get("Todo_data")
+        fetch(`http://localhost:3000/api`,{
+            method:"post",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({todo_data})
+        })
+        .then(res => res.json())
+        .then(data => {
+            print();
+            console.log(data)
+        })
+    }
+
+    let list = document.getElementById("list")
+    let print = ()=>{
+        fetch(`http://localhost:3000/api`,{
+            method:"get",
+        })
+        .then(res => res.json())
+        .then(data => {
+            list.innerHTML = null;
+            data.map((item,index)=>{
+                let li = `<li>${item.data}<button onclick="del('${item._id}')">Delet</button> <button onclick="edit('${item._id}')">Edit</button></li>`
+                list.innerHTML +=li;
+            })
+        })
+    }
+
+    let del = (data)=>{
+    let ind = data
+    fetch(`http://localhost:3000/api`,{
+        method:"delete",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ind})
+    })
+    .then(res => res.json())
+    .then(datas => {
+        print();
+        console.log(datas)
+    })
+}
+
+let edit = (ind)=>{
+    let new_data = prompt("enter new data");
+    fetch(`http://localhost:3000/api`,{
+        method:"put",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({ind,new_data})
+    })
+    .then(res => res.json())
+    .then(datas => {
+        print();
+        console.log(datas)
+    })
+}
+    print();
+
+    
+</script>
+</body>
+</html>
